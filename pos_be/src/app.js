@@ -22,4 +22,12 @@ app.use(
 // 🔹 API routes
 app.use("/api", mainRoute);
 
+// 🔹 Handle Not Found (404)
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: "Endpoint Not Found!",
+  });
+});
+
 module.exports = { app, server };

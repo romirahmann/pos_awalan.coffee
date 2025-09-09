@@ -1,6 +1,7 @@
 const UserModel = require("../../models/user.model");
 const { hashPasword } = require("../../services/auth.service");
 const api = require("../../tools/common");
+const socket = require("../../services/socket.service");
 
 // ✅ Get all users
 const getUsers = async (req, res) => {
@@ -17,7 +18,6 @@ const getUsers = async (req, res) => {
 const createUser = async (req, res) => {
   try {
     let data = req.body;
-    console.log("📥 Request Body:", data.password);
 
     let hashedPassword = await hashPasword(data.password);
 
@@ -34,6 +34,10 @@ const createUser = async (req, res) => {
     }
 
     await UserModel.insert(data);
+
+    // 🔔 Emit event ke semua client
+    socket.emit("user:created", { username: data.username });
+
     return api.success(res, "User created successfully");
   } catch (error) {
     console.error("❌ Error in createUser:", error);
@@ -46,7 +50,12 @@ const updateUser = async (req, res) => {
   try {
     const { username } = req.params;
     const data = req.body;
+
     await UserModel.updateUser(username, data);
+
+    // 🔔 Emit event ke semua client
+    socket.emit("user:updated", { username, data });
+
     return api.success(res, "User updated successfully");
   } catch (error) {
     console.error("❌ Error in updateUser:", error);
@@ -58,7 +67,12 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
+
     await UserModel.deleteUser(id);
+
+    // 🔔 Emit event ke semua client
+    socket.emit("user:deleted", { id });
+
     return api.success(res, "User deleted successfully");
   } catch (error) {
     console.error("❌ Error in deleteUser:", error);

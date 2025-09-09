@@ -1,5 +1,8 @@
 const authModel = require("../../models/auth.model");
-const { verifyPassword } = require("../../services/auth.service");
+const {
+  verifyPassword,
+  generateToken,
+} = require("../../services/auth.service");
 const api = require("../../tools/common");
 
 const login = async (req, res) => {
@@ -14,7 +17,7 @@ const login = async (req, res) => {
     const passwordIsMatch = await verifyPassword(password, user.password);
     if (!passwordIsMatch) return api.error(res, "Incorrect Password!", 401);
 
-    const userData = {
+    const payload = {
       userId: user.userId,
       username: user.username,
       fullname: user.fullname,
@@ -29,7 +32,9 @@ const login = async (req, res) => {
       positionName: user.positionName,
     };
 
-    return api.success(res, userData);
+    const token = generateToken(payload);
+
+    return api.success(res, { token, user: payload });
   } catch (error) {
     console.log(error);
     return api.error(res, "Login Failed!", 500);

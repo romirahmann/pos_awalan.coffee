@@ -1,0 +1,101 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --midnight-navy: #0d1b2a;
+  --graphite-gray: #1e1e1e;
+  --slate-blue: #3a506b;
+  --steel-teal: #5bc0be;
+  --espresso-brown: #4e342e;
+  --cream-beige: #c9b79c;
+  --soft-gray: #b0b0b0;
+  --pure-white: #ffffff;
+}
+
+/* ✅ Midnight Navy */
+@utility bg-midnight-navy {
+  background-color: var(--midnight-navy);
+}
+@utility text-midnight-navy {
+  color: var(--midnight-navy);
+}
+@utility border-midnight-navy {
+  border-color: var(--midnight-navy);
+}
+
+/* ✅ Graphite Gray */
+@utility bg-graphite-gray {
+  background-color: var(--graphite-gray);
+}
+@utility text-graphite-gray {
+  color: var(--graphite-gray);
+}
+@utility border-graphite-gray {
+  border-color: var(--graphite-gray);
+}
+
+/* ✅ Slate Blue */
+@utility bg-slate-blue {
+  background-color: var(--slate-blue);
+}
+@utility text-slate-blue {
+  color: var(--slate-blue);
+}
+@utility border-slate-blue {
+  border-color: var(--slate-blue);
+}
+
+/* ✅ Steel Teal */
+@utility bg-steel-teal {
+  background-color: var(--steel-teal);
+}
+@utility text-steel-teal {
+  color: var(--steel-teal);
+}
+@utility border-steel-teal {
+  border-color: var(--steel-teal);
+}
+
+/* ✅ Espresso Brown */
+@utility bg-espresso-brown {
+  background-color: var(--espresso-brown);
+}
+@utility text-espresso-brown {
+  color: var(--espresso-brown);
+}
+@utility border-espresso-brown {
+  border-color: var(--espresso-brown);
+}
+
+/* ✅ Cream Beige */
+@utility bg-cream-beige {
+  background-color: var(--cream-beige);
+}
+@utility text-cream-beige {
+  color: var(--cream-beige);
+}
+@utility border-cream-beige {
+  border-color: var(--cream-beige);
+}
+
+/* ✅ Soft Gray */
+@utility bg-soft-gray {
+  background-color: var(--soft-gray);
+}
+@utility text-soft-gray {
+  color: var(--soft-gray);
+}
+@utility border-soft-gray {
+  border-color: var(--soft-gray);
+}
+
+/* ✅ Pure White */
+@utility bg-pure-white {
+  background-color: var(--pure-white);
+}
+@utility text-pure-white {
+  color: var(--pure-white);
+}
+@utility border-pure-white {
+  border-color: var(--pure-white);
+}
