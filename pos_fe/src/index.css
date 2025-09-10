@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ✅ Import Google Fonts (Poppins) */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
 @theme {
   --midnight-navy: #0d1b2a;
   --graphite-gray: #1e1e1e;
@@ -10,6 +13,14 @@
   --cream-beige: #c9b79c;
   --soft-gray: #b0b0b0;
   --pure-white: #ffffff;
+
+  /* ✅ Font Family */
+  --font-poppins: "Poppins", sans-serif;
+}
+
+/* ✅ Utility untuk font */
+@utility font-poppins {
+  font-family: var(--font-poppins);
 }
 
 /* ✅ Midnight Navy */

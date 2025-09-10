@@ -129,8 +129,7 @@ export function Table({
           {totalItems > 0 ? (
             <>
               Menampilkan <strong>{startItem}</strong>–
-              <strong>{endItem}</strong> dari <strong>{totalItems}</strong>{" "}
-              dokumen
+              <strong>{endItem}</strong> dari <strong>{totalItems}</strong> data
             </>
           ) : (
             "Tidak ada dokumen untuk ditampilkan"

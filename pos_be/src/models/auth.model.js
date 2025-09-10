@@ -11,7 +11,7 @@ const login = async (username) =>
       "u.fullname",
       "u.isActive",
       "u.createdAt",
-      "u.updateAt",
+      "u.updatedAt",
       "u.positionId",
       "r.roleName",
       "p.positionName"

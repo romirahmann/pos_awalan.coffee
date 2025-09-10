@@ -9,6 +9,7 @@ import { LoginPage } from "../pages/auth/LoginPage";
 import { ProtectedRoute } from "../components/auth/ProtectedRoutes";
 import { MainLayout } from "../layouts/MainLayouts";
 import { Homepage } from "../pages/main/HomePage";
+import { UserPage } from "../pages/main/users/UserPage";
 
 const rootRoute = createRootRoute({
   notFoundComponent: NotFoundPage,
@@ -38,9 +39,15 @@ const homePage = createRoute({
   component: Homepage,
 });
 
+const userPage = createRoute({
+  getParentRoute: () => mainLayout,
+  path: "/settings/users",
+  component: UserPage,
+});
+
 const routeTree = rootRoute.addChildren([
   loginPage,
-  protectedLayout.addChildren([mainLayout.addChildren([homePage])]),
+  protectedLayout.addChildren([mainLayout.addChildren([homePage, userPage])]),
 ]);
 
 export const router = createRouter({

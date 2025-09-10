@@ -8,8 +8,7 @@ export function Homepage() {
   };
   return (
     <>
-      <h1>Homepage</h1>
-      <button onClick={() => handleLogout()}>Logout!</button>
+      <h1>DASHBOARD</h1>
     </>
   );
 }
