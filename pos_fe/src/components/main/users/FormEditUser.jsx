@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 
 export function FormEditUser({
@@ -39,7 +40,8 @@ export function FormEditUser({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ ...formData, userId: data.userId });
+    // console.log(formData);
+    onSubmit(formData);
   };
 
   return (

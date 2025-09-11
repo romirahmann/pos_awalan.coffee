@@ -11,6 +11,7 @@ const socket = io(baseUrl, {
 
 // Connect socket manual (misalnya dipanggil setelah login)
 export const connectSocket = () => {
+  console.log("Socket Connected!");
   if (!socket.connected) socket.connect();
 };
 

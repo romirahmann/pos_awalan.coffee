@@ -7,10 +7,7 @@ export function Table({
   actionRenderer,
   rowsPerPage = 10,
 }) {
-  const [sortConfig, setSortConfig] = useState({
-    key: "createdAt",
-    direction: "desc",
-  });
+  const [sortConfig, setSortConfig] = useState({});
   const [currentPage, setCurrentPage] = useState(1);
 
   const sortedData = useMemo(() => {

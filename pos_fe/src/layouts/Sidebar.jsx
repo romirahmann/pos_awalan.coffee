@@ -12,6 +12,7 @@ import {
   FaUser,
   FaUserShield,
 } from "react-icons/fa";
+import { PiUserGearFill } from "react-icons/pi";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Tooltip } from "react-tooltip";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,7 +26,13 @@ export const menuItems = [
     icon: <FaCog />,
     children: [
       { name: "Profile", icon: <FaUser />, path: "/settings/profile" },
-      { name: "Manage Users", icon: <FaUserShield />, path: "/settings/users" },
+      { name: "Manage Users", icon: <FaUsers />, path: "/settings/users" },
+      { name: "Manage Roles", icon: <FaUserShield />, path: "/settings/roles" },
+      {
+        name: "Manage Positions",
+        icon: <PiUserGearFill />,
+        path: "/settings/positions",
+      },
     ],
   },
 ];

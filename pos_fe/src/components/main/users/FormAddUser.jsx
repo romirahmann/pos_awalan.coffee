@@ -21,7 +21,7 @@ export function FormAddUser({ onSubmit, roles = [], positions = [] }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (onSubmit) onSubmit(formData);
+    onSubmit(formData);
   };
 
   return (

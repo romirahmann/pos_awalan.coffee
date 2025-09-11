@@ -5,16 +5,25 @@ import { useEffect, useState } from "react";
 import api from "../../../services/axios.service";
 import { Modal } from "../../../shared/Modal";
 import { FormAddUser } from "../../../components/main/users/FormAddUser";
+import { listenToUpdate } from "../../../services/socket.service";
+import { useAlert } from "../../../store/AlertContext";
 
 export function UserPage() {
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [positions, setPositions] = useState([]);
   const [openModalAdd, setOpenModalAdd] = useState(false);
+  const { showAlert } = useAlert();
 
   useEffect(() => {
     fetchUser();
     fetchRoles(), fetchPositions();
+
+    return () => {
+      listenToUpdate("user:created", fetchUser);
+      listenToUpdate("user:updated", fetchUser);
+      listenToUpdate("user:deleted", fetchUser);
+    };
   }, []);
 
   const fetchUser = async () => {
@@ -40,6 +49,17 @@ export function UserPage() {
       setPositions(result.data.data);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleAdd = async (val) => {
+    try {
+      await api.post("/master/register", val);
+      showAlert("success", "Add User Successfully!");
+      setOpenModalAdd(false);
+    } catch (error) {
+      console.log(error);
+      showAlert("error", "Add Role Failed!");
     }
   };
 
@@ -72,7 +92,7 @@ export function UserPage() {
         title="Add User"
         onClose={() => setOpenModalAdd(false)}
       >
-        <FormAddUser roles={roles} positions={positions} />
+        <FormAddUser roles={roles} positions={positions} onSubmit={handleAdd} />
       </Modal>
     </>
   );

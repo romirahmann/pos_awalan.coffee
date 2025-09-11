@@ -1,74 +1,56 @@
 /* eslint-disable no-unused-vars */
+/* TableRole.jsx */
 import moment from "moment/moment";
 import { Table } from "../../../shared/Table";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { Modal } from "../../../shared/Modal";
 import { useState } from "react";
-import { FormAddUser } from "./FormAddUser";
-import { FormEditUser } from "./FormEditUser";
+import { FormAddRole } from "./FormAddRole";
+import { FormEditRole } from "./FormEditRole";
 import { DeleteModal } from "../../../shared/DeletedComponent";
 import { useAlert } from "../../../store/AlertContext";
 import api from "../../../services/axios.service";
 
-export function TableUser({
-  data = [],
-  filter = {},
-  roles = [],
-  positions = [],
-}) {
+export function TableRole({ data = [], filter = {} }) {
   const [openModal, setOpenModal] = useState({
     edit: false,
     deleted: false,
   });
-  const [selectedData, setSelectedData] = useState([]);
+  const [selectedData, setSelectedData] = useState(null);
   const { showAlert } = useAlert();
-
   // Column Table
   const columns = [
     { header: "No", key: "no" },
-    { header: "Username", key: "username" },
-    { header: "Email", key: "email" },
-    { header: "Fullname", key: "fullname" },
-    { header: "Role", key: "roleName" },
-    { header: "Position", key: "positionName" },
-    {
-      header: "Status",
-      key: "isActive",
-      render: (val) =>
-        val === 1 ? (
-          <p className="text-green-600 rounded-md font-bold ">Active</p>
-        ) : (
-          <p className="text-red-600 rounded-md  font-bold ">In Active</p>
-        ),
-    },
+    { header: "Role Name", key: "roleName" },
+    { header: "Description", key: "description" },
     {
       header: "Created At",
       key: "createdAt",
-      render: (val) => moment(val).format("DD-MM-YYYY HH:mm:ss"),
+      render: (val) => moment(val).format("DD/MM/YYYY HH:mm:ss"),
     },
     {
       header: "Updated At",
       key: "updatedAt",
-      render: (val) => moment(val).format("DD-MM-YYYY HH:mm:ss"),
+      render: (val) => moment(val).format("DD/MM/YYYY HH:mm:ss"),
     },
     { header: "Action", key: "action" },
   ];
 
-  //   ACTION
+  // ACTIONS
   const handleEdit = async (val) => {
     if (!val) {
       showAlert("error", "New Data not found!");
       return;
     }
     try {
-      await api.put(`/master/user/${val.username}`, val);
-      showAlert("success", "Update User Successfully!");
+      await api.put(`/master/role/${selectedData.roleId}`, val);
+      showAlert("success", "Update Role Successfully!");
       setOpenModal({
         edit: false,
       });
     } catch (error) {
       console.log(error);
-      showAlert("error", "Update User Failed!");
+      showAlert("error", "Update Role Failed!");
     }
   };
 
@@ -78,12 +60,12 @@ export function TableUser({
       return;
     }
     try {
-      await api.delete(`/master/user/${selectedData.userId}`);
-      showAlert("success", "Deleted Successfully!");
+      await api.delete(`/master/role/${selectedData.roleId}`);
+      showAlert("success", "Deleted Role Successfully!");
       setOpenModal({ deleted: false });
     } catch (error) {
       console.log(error);
-      showAlert("error", "Deleted User Failure!");
+      showAlert("error", "Deleted Role Failure!");
     }
   };
 
@@ -104,8 +86,8 @@ export function TableUser({
         </button>
         <button
           onClick={() => {
-            setOpenModal({ deleted: true });
             setSelectedData(row);
+            setOpenModal({ deleted: true });
           }}
           className="px-2 py-1 bg-red-500 hover:bg-red-600 text-white text-sm rounded"
         >
@@ -122,18 +104,19 @@ export function TableUser({
         columns={columns}
         rowsPerPage={filter.perPage || 10}
       />
+
+      {/* Edit Role Modal */}
       <Modal
         isOpen={openModal.edit}
-        title="Edit User"
+        title="Edit Role"
         onClose={() => setOpenModal({ edit: false })}
       >
-        <FormEditUser
-          data={selectedData}
-          onSubmit={handleEdit}
-          roles={roles}
-          positions={positions}
-        />
+        {selectedData && (
+          <FormEditRole data={selectedData} onSubmit={handleEdit} />
+        )}
       </Modal>
+
+      {/* Delete Role Modal */}
       <DeleteModal
         isOpen={openModal.deleted}
         onClose={() => setOpenModal({ deleted: false })}
