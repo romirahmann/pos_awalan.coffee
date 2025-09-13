@@ -82,19 +82,19 @@ export function Topbar({ openSidebar }) {
             </button>
 
             {showMenu && (
-              <div className="absolute right-0 mt-2 w-full bg-gray-800 rounded-md shadow-lg py-2 z-50 cursor-pointer">
-                <div className="flex items-center gap-2 px-4 py-2 text-gray-100 hover:bg-gray-700 ">
+              <div className="absolute right-0 mt-2 w-full bg-gray-800 hover:bg-red-700 rounded-md shadow-lg py-2 z-50 cursor-pointer">
+                {/* <div className="flex items-center gap-2 px-4 py-2 text-gray-100 hover:bg-gray-700 ">
                   <FaUserCircle />
                   <p>Profile</p>
                 </div>
                 <div className="flex items-center gap-2 px-4 py-2 text-gray-100 hover:bg-gray-700 ">
                   <IoMdSettings />
                   <p>Setting</p>
-                </div>
-                <hr className="text-gray-50" />
+                </div> */}
+                {/* <hr className="text-gray-50" /> */}
                 <button
                   onClick={() => logout()}
-                  className="flex items-center gap-2 px-4 py-2 text-gray-100 hover:bg-gray-700 w-full"
+                  className="flex items-center gap-2 px-4 py-2 text-gray-100  w-full"
                 >
                   <FaSignOutAlt /> Logout
                 </button>

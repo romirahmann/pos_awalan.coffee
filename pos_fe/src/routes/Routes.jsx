@@ -12,6 +12,11 @@ import { Homepage } from "../pages/main/HomePage";
 import { UserPage } from "../pages/main/users/UserPage";
 import { RolePage } from "../pages/main/users/Rolespage";
 import { PositionPage } from "../pages/main/users/PositionPage";
+import { ProfilePage } from "../pages/main/users/ProfilePage";
+import { OrderPage } from "../pages/main/orders/OrderPage";
+import { DetailOrder } from "../pages/main/orders/DetailOrder";
+import z from "zod";
+import { ProductsPage } from "../pages/main/products/ProductsPage";
 
 const rootRoute = createRootRoute({
   notFoundComponent: NotFoundPage,
@@ -41,6 +46,27 @@ const homePage = createRoute({
   component: Homepage,
 });
 
+// PRODUCTS
+const productsPage = createRoute({
+  getParentRoute: () => mainLayout,
+  path: "/products",
+  component: ProductsPage,
+});
+
+// ORDER
+const orderPage = createRoute({
+  getParentRoute: () => mainLayout,
+  path: "/orders",
+  component: OrderPage,
+});
+const detailOrderPage = createRoute({
+  getParentRoute: () => mainLayout,
+  path: "/orders/detail",
+  component: DetailOrder,
+});
+
+// SETTING
+
 const userPage = createRoute({
   getParentRoute: () => mainLayout,
   path: "/settings/users",
@@ -58,11 +84,25 @@ const positionPage = createRoute({
   path: "/settings/positions",
   component: PositionPage,
 });
+const profilePage = createRoute({
+  getParentRoute: () => mainLayout,
+  path: "/settings/profile",
+  component: ProfilePage,
+});
 
 const routeTree = rootRoute.addChildren([
   loginPage,
   protectedLayout.addChildren([
-    mainLayout.addChildren([homePage, userPage, rolePage, positionPage]),
+    mainLayout.addChildren([
+      homePage,
+      userPage,
+      rolePage,
+      positionPage,
+      profilePage,
+      orderPage,
+      detailOrderPage,
+      productsPage,
+    ]),
   ]),
 ]);
 

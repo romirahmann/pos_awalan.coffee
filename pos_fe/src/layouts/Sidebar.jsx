@@ -11,21 +11,24 @@ import {
   FaAngleDoubleRight,
   FaUser,
   FaUserShield,
+  FaProductHunt,
 } from "react-icons/fa";
 import { PiUserGearFill } from "react-icons/pi";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Tooltip } from "react-tooltip";
 import { motion, AnimatePresence } from "framer-motion";
+import { MdFastfood } from "react-icons/md";
 
 export const menuItems = [
   { name: "Dashboard", icon: <FaHome />, path: "/" },
-  { name: "Orders", icon: <FaCashRegister />, path: "/order" },
+  { name: "Orders", icon: <FaCashRegister />, path: "/orders" },
+  { name: "Products", icon: <MdFastfood />, path: "/products" },
   { name: "Customers", icon: <FaUsers />, path: "/customers" },
   {
     name: "Settings",
     icon: <FaCog />,
     children: [
-      { name: "Profile", icon: <FaUser />, path: "/settings/profile" },
+      // { name: "Profile", icon: <FaUser />, path: "/settings/profile" },
       { name: "Manage Users", icon: <FaUsers />, path: "/settings/users" },
       { name: "Manage Roles", icon: <FaUserShield />, path: "/settings/roles" },
       {

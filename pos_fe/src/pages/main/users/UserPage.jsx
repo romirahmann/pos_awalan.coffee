@@ -65,7 +65,7 @@ export function UserPage() {
 
   return (
     <>
-      <div className="max-w-full">
+      <div className="max-w-full p-6 space-y-6">
         <div className="title flex font-bold items-center gap-2 ">
           <div className="subTitle flex items-center gap-2 text-3xl">
             <FaUsers />

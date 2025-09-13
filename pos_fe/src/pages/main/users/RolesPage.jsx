@@ -15,11 +15,12 @@ export function RolePage() {
 
   useEffect(() => {
     fetchRoles();
-    return () => {
-      listenToUpdate("role:created", fetchRoles);
-      listenToUpdate("role:updated", fetchRoles);
-      listenToUpdate("role:deleted", fetchRoles);
-    };
+  }, []);
+
+  useEffect(() => {
+    listenToUpdate("role:created", fetchRoles);
+    listenToUpdate("role:updated", fetchRoles);
+    listenToUpdate("role:deleted", fetchRoles);
   }, []);
 
   const fetchRoles = async () => {
@@ -44,7 +45,7 @@ export function RolePage() {
 
   return (
     <>
-      <div className="max-w-full">
+      <div className="max-w-full p-6 space-y-6">
         {/* Title */}
         <div className="title flex font-bold items-center gap-2 mb-4">
           <div className="subTitle flex items-center gap-2 text-3xl">

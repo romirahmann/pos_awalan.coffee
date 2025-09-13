@@ -23,16 +23,7 @@ export function TableRole({ data = [], filter = {} }) {
     { header: "No", key: "no" },
     { header: "Role Name", key: "roleName" },
     { header: "Description", key: "description" },
-    {
-      header: "Created At",
-      key: "createdAt",
-      render: (val) => moment(val).format("DD/MM/YYYY HH:mm:ss"),
-    },
-    {
-      header: "Updated At",
-      key: "updatedAt",
-      render: (val) => moment(val).format("DD/MM/YYYY HH:mm:ss"),
-    },
+
     { header: "Action", key: "action" },
   ];
 
