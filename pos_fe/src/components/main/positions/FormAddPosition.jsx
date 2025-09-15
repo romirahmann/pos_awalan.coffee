@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useState } from "react";
 
-export function FormAddPosition({ onSubmit }) {
+export function FormAddPosition({ onSubmit, categores }) {
   const [formData, setFormData] = useState({
     positionName: "",
     description: "",
