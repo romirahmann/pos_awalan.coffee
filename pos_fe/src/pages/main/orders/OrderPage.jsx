@@ -18,6 +18,7 @@ export function OrderPage() {
     dateFrom: "",
     dateTo: "",
   });
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [openAddModal, setOpenAddModal] = useState(false);
   const { showAlert } = useAlert();
   const { user } = useAuth();
@@ -28,16 +29,30 @@ export function OrderPage() {
   }, [filters]);
 
   useEffect(() => {
+    // Corrected `useEffect` cleanup function.
+    const unsubscribeOrderCreated = listenToUpdate(
+      "order:created",
+      fetchOrders
+    );
+    const unsubscribeOrderUpdated = listenToUpdate(
+      "order:updated",
+      fetchOrders
+    );
+    const unsubscribeOrderDeleted = listenToUpdate(
+      "order:deleted",
+      fetchOrders
+    );
+
     return () => {
-      listenToUpdate("order:created", fetchOrders);
-      listenToUpdate("order:updated", fetchOrders);
-      listenToUpdate("order:deleted", fetchOrders);
+      unsubscribeOrderCreated();
+      unsubscribeOrderUpdated();
+      unsubscribeOrderDeleted();
     };
   }, []);
 
   const fetchOrders = async () => {
     try {
-      let res = await api.get("/master/orders");
+      let res = await api.get("/master/orders", { params: filters });
       setOrders(res.data.data);
     } catch (error) {
       console.log(error);
@@ -50,7 +65,10 @@ export function OrderPage() {
       let id = res.data.data;
       showAlert("success", "Create Order Successfully!");
       setOpenAddModal(false);
-      navigate({ to: "/orders/detail/", search: { orderId: id } });
+      navigate({
+        to: "/orders/detail", // ✅ Navigasi ke path yang benar
+        search: { orderId: id },
+      });
     } catch (error) {
       console.log(error);
       showAlert("error", "Create Order Failed!");
@@ -64,89 +82,99 @@ export function OrderPage() {
         <h2 className="text-3xl font-semibold flex items-center gap-2 text-gray-800">
           <FaShoppingCart className="text-primary" /> Orders
         </h2>
-        <button
-          onClick={() => setOpenAddModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition bg-blue-900 hover:bg-blue-700"
-        >
-          <FaPlus /> New Order
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setFiltersOpen((prev) => !prev)}
+            className="flex items-center gap-2 px-4 py-2 text-midnight-navy bg-gray-50 border border-midnight-navy rounded-lg hover:bg-blue-700 hover:text-white transition"
+          >
+            <FaFilter /> Filters
+          </button>
+          <button
+            onClick={() => setOpenAddModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition bg-blue-900 hover:bg-blue-700"
+          >
+            <FaPlus /> New Order
+          </button>
+        </div>
       </div>
 
       {/* Filter Section */}
-      <div className="bg-white shadow-sm rounded-lg p-4 border border-gray-200">
-        <h3 className="text-lg font-medium mb-4 flex items-center gap-2 text-gray-700">
-          <FaFilter /> Filters
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Status */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600 mb-1">
-              Status
-            </label>
-            <select
-              value={filters.status}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, status: e.target.value }))
-              }
-              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
-            >
-              <option value="">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-              <option value="canceled">Canceled</option>
-            </select>
-          </div>
+      {filtersOpen && (
+        <div className="bg-white shadow-sm rounded-lg p-4 border border-gray-200">
+          <h3 className="text-lg font-medium mb-4 flex items-center gap-2 text-gray-700">
+            <FaFilter /> Filters
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Status */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-600 mb-1">
+                Status
+              </label>
+              <select
+                value={filters.status}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, status: e.target.value }))
+                }
+                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
+              >
+                <option value="">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="canceled">Canceled</option>
+              </select>
+            </div>
 
-          {/* Order Type */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600 mb-1">
-              Order Type
-            </label>
-            <select
-              value={filters.type}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, type: e.target.value }))
-              }
-              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
-            >
-              <option value="">All Types</option>
-              <option value="dine-in">Dine-In</option>
-              <option value="takeaway">Takeaway</option>
-              <option value="online">Online</option>
-            </select>
-          </div>
+            {/* Order Type */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-600 mb-1">
+                Order Type
+              </label>
+              <select
+                value={filters.type}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, type: e.target.value }))
+                }
+                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
+              >
+                <option value="">All Types</option>
+                <option value="dine-in">Dine-In</option>
+                <option value="takeaway">Takeaway</option>
+                <option value="online">Online</option>
+              </select>
+            </div>
 
-          {/* Date From */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600 mb-1">
-              Date From
-            </label>
-            <input
-              type="date"
-              value={filters.dateFrom}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, dateFrom: e.target.value }))
-              }
-              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
-            />
-          </div>
+            {/* Date From */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-600 mb-1">
+                Date From
+              </label>
+              <input
+                type="date"
+                value={filters.dateFrom}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, dateFrom: e.target.value }))
+                }
+                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
+              />
+            </div>
 
-          {/* Date To */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium text-gray-600 mb-1">
-              Date To
-            </label>
-            <input
-              type="date"
-              value={filters.dateTo}
-              onChange={(e) =>
-                setFilters((prev) => ({ ...prev, dateTo: e.target.value }))
-              }
-              className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
-            />
+            {/* Date To */}
+            <div className="flex flex-col">
+              <label className="text-sm font-medium text-gray-600 mb-1">
+                Date To
+              </label>
+              <input
+                type="date"
+                value={filters.dateTo}
+                onChange={(e) =>
+                  setFilters((prev) => ({ ...prev, dateTo: e.target.value }))
+                }
+                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary focus:outline-none"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Orders Table */}
       <div className="bg-white shadow-sm rounded-lg p-4 border border-gray-200">

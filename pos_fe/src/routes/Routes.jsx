@@ -49,44 +49,51 @@ const homePage = createRoute({
 // PRODUCTS
 const productsPage = createRoute({
   getParentRoute: () => mainLayout,
-  path: "/products",
+  path: "products",
   component: ProductsPage,
 });
 
 // ORDER
 const orderPage = createRoute({
   getParentRoute: () => mainLayout,
-  path: "/orders",
+  path: "orders",
   component: OrderPage,
 });
-const detailOrderPage = createRoute({
+
+export const detailOrderPage = createRoute({
   getParentRoute: () => mainLayout,
-  path: "/orders/detail",
+  path: "orders/detail", // ❌ jangan pakai "/orders/detail"
   component: DetailOrder,
+  validateSearch: (search) =>
+    z
+      .object({
+        orderId: z.coerce.number(), // bisa "2" => 2
+      })
+      .parse(search),
 });
 
 // SETTING
 
 const userPage = createRoute({
   getParentRoute: () => mainLayout,
-  path: "/settings/users",
+  path: "settings/users",
   component: UserPage,
 });
 
 const rolePage = createRoute({
   getParentRoute: () => mainLayout,
-  path: "/settings/roles",
+  path: "settings/roles",
   component: RolePage,
 });
 
 const positionPage = createRoute({
   getParentRoute: () => mainLayout,
-  path: "/settings/positions",
+  path: "settings/positions",
   component: PositionPage,
 });
 const profilePage = createRoute({
   getParentRoute: () => mainLayout,
-  path: "/settings/profile",
+  path: "settings/profile",
   component: ProfilePage,
 });
 

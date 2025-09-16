@@ -45,6 +45,11 @@ router.post(
   ProductController.createProduct
 );
 router.put("/product/:id", ProductController.updateProduct);
+router.put(
+  "/img-product/:id",
+  upload.single("image"),
+  ProductController.updateProductImg
+);
 router.delete("/product/:id", ProductController.deleteProduct);
 router.get("/get-image/:filename", ProductController.getFile);
 

@@ -17,7 +17,7 @@ export function FormEditProduct({ data = {}, categories = [], onSubmit }) {
         productName: data.productName || "",
         description: data.description || "",
         price: data.price || "",
-        image: null, // biarkan kosong dulu (user upload baru jika perlu)
+        image: null,
       });
     }
   }, [data]);

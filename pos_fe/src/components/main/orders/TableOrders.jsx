@@ -2,12 +2,39 @@
 import moment from "moment/moment";
 import { Table } from "../../../shared/Table";
 import { FaTrash, FaEye } from "react-icons/fa";
-import { Modal } from "../../../shared/Modal";
 import { useState } from "react";
 import { DeleteModal } from "../../../shared/DeletedComponent";
 import api from "../../../services/axios.service";
 import { useAlert } from "../../../store/AlertContext";
-import { Link } from "@tanstack/react-router"; // Link can accept strings
+import { Link } from "@tanstack/react-router";
+
+// ✅ Helper buat kasih warna status & type
+const getStatusColor = (status) => {
+  switch (status) {
+    case "pending":
+    case "pending payment":
+      return "text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full text-xs font-medium";
+    case "completed":
+      return "text-green-600 bg-green-100 px-2 py-1 rounded-full text-xs font-medium";
+    case "canceled":
+      return "text-red-600 bg-red-100 px-2 py-1 rounded-full text-xs font-medium";
+    default:
+      return "text-gray-600 bg-gray-100 px-2 py-1 rounded-full text-xs font-medium";
+  }
+};
+
+const getTypeColor = (type) => {
+  switch (type) {
+    case "dine-in":
+      return "text-blue-600 bg-blue-100 px-2 py-1 rounded-full text-xs font-medium";
+    case "takeaway":
+      return "text-purple-600 bg-purple-100 px-2 py-1 rounded-full text-xs font-medium";
+    case "online":
+      return "text-pink-600 bg-pink-100 px-2 py-1 rounded-full text-xs font-medium";
+    default:
+      return "text-gray-600 bg-gray-100 px-2 py-1 rounded-full text-xs font-medium";
+  }
+};
 
 export function TableOrders({ data = [], filter = {} }) {
   const [openModal, setOpenModal] = useState({ detail: false, deleted: false });
@@ -18,8 +45,20 @@ export function TableOrders({ data = [], filter = {} }) {
     { header: "No", key: "no" },
     { header: "Order Code", key: "orderCode" },
     { header: "Customer", key: "customerName" },
-    { header: "Type", key: "orderType" },
-    { header: "Status", key: "status" },
+    {
+      header: "Type",
+      key: "orderType",
+      render: (val) => (
+        <span className={getTypeColor(val)}>{val.toUpperCase()}</span>
+      ),
+    },
+    {
+      header: "Status",
+      key: "status",
+      render: (val) => (
+        <span className={getStatusColor(val)}>{val.toUpperCase()}</span>
+      ),
+    },
     {
       header: "Total Amount",
       key: "totalAmount",
@@ -60,7 +99,6 @@ export function TableOrders({ data = [], filter = {} }) {
     no: index + 1,
     action: (
       <div className="flex gap-2">
-        {/* Use a plain string path to avoid circular-import trouble */}
         <Link
           to={`/orders/detail`}
           search={{ orderId: row.orderId }}

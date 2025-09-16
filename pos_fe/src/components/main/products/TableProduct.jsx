@@ -16,6 +16,7 @@ import api from "../../../services/axios.service";
 import { useAlert } from "../../../store/AlertContext";
 import { baseApi } from "../../../services/api.service";
 import { FormEditProduct } from "./FormEditProduct";
+import { DetailProduct } from "./DetailProduct";
 
 export function TableProduct({ data = [], filter = {}, categories }) {
   const [openModal, setOpenModal] = useState({
@@ -86,6 +87,39 @@ export function TableProduct({ data = [], filter = {}, categories }) {
     }
   };
 
+  const handleEdit = async (val) => {
+    const formData = new FormData();
+    Object.keys(val).forEach((key) => {
+      formData.append(key, val[key]);
+    });
+
+    if (!val.image) {
+      try {
+        await api.put(`/master/product/${selectedData.productId}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        showAlert("success", "Update Data Product Successfully!");
+        setOpenModal({ ...openModal, edit: false });
+        return;
+      } catch (error) {
+        showAlert("error", "Update Data Product Failed!");
+        console.log(error);
+        return;
+      }
+    }
+
+    try {
+      await api.put(`/master/img-product/${selectedData.productId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      showAlert("success", "Update Data Product Successfully!");
+      setOpenModal({ ...openModal, edit: false });
+    } catch (error) {
+      showAlert("error", "Update Data Product Failed!");
+      console.log(error);
+    }
+  };
+
   const formattedData = data.map((row, index) => ({
     ...row,
     no: index + 1,
@@ -137,7 +171,11 @@ export function TableProduct({ data = [], filter = {}, categories }) {
         title="Edit Product"
         onClose={() => setOpenModal((prev) => ({ ...prev, edit: false }))}
       >
-        <FormEditProduct data={selectedData} categories={categories} />
+        <FormEditProduct
+          data={selectedData}
+          categories={categories}
+          onSubmit={handleEdit}
+        />
       </Modal>
 
       <Modal
@@ -145,62 +183,7 @@ export function TableProduct({ data = [], filter = {}, categories }) {
         title="Product Detail"
         onClose={() => setOpenModal((prev) => ({ ...prev, detail: false }))}
       >
-        {selectedData && (
-          <div className="space-y-6 text-sm">
-            {/* Image + Title */}
-            <div className="flex flex-col items-center text-center space-y-3">
-              <img
-                src={`${baseApi}/master/get-image/${selectedData.fileName}`}
-                alt={selectedData.productName}
-                className="w-40 h-40 rounded-xl object-cover shadow-md border"
-              />
-              <h3 className="text-xl font-semibold text-gray-800">
-                {selectedData.productName}
-              </h3>
-              <p className="text-gray-500">{selectedData.description}</p>
-            </div>
-
-            {/* Info Grid */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-50 p-3 rounded-lg shadow-sm">
-                <p className="text-xs text-gray-500">Product ID</p>
-                <p className="font-medium">{selectedData.productId}</p>
-              </div>
-              <div className="bg-gray-50 p-3 rounded-lg shadow-sm">
-                <p className="text-xs text-gray-500">Category</p>
-                <p className="font-medium">{selectedData.categoryName}</p>
-              </div>
-              <div className="bg-gray-50 p-3 rounded-lg shadow-sm">
-                <p className="text-xs text-gray-500">Available</p>
-                <p
-                  className={`font-medium ${
-                    selectedData.isAvailable ? "text-green-600" : "text-red-600"
-                  }`}
-                >
-                  {selectedData.isAvailable ? "Yes" : "No"}
-                </p>
-              </div>
-              <div className="bg-gray-50 p-3 rounded-lg shadow-sm">
-                <p className="text-xs text-gray-500">Price</p>
-                <p className="font-semibold text-blue-600">
-                  RP {selectedData.price?.toLocaleString("id-ID")}
-                </p>
-              </div>
-              <div className="bg-gray-50 p-3 rounded-lg shadow-sm">
-                <p className="text-xs text-gray-500">Created At</p>
-                <p className="font-medium">
-                  {moment(selectedData.createdAt).format("DD-MM-YYYY HH:mm")}
-                </p>
-              </div>
-              <div className="bg-gray-50 p-3 rounded-lg shadow-sm">
-                <p className="text-xs text-gray-500">Updated At</p>
-                <p className="font-medium">
-                  {moment(selectedData.updatedAt).format("DD-MM-YYYY HH:mm")}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {selectedData && <DetailProduct selectedData={selectedData} />}
       </Modal>
 
       <DeleteModal

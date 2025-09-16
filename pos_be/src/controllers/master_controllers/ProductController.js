@@ -61,12 +61,8 @@ const updateProduct = async (req, res) => {
     const { id } = req.params;
     const data = req.body;
 
-    // Update timestamp
-    data.updatedAt = new Date();
-
     await ProductModel.updateProduct(id, data);
 
-    // 🔔 Emit event
     socket.emit("product:updated", { id, ...data });
 
     return api.success(res, "Product updated successfully");
@@ -75,19 +71,105 @@ const updateProduct = async (req, res) => {
     return api.error(res, "Error updating product", 500);
   }
 };
+const updateProductImg = async (req, res) => {
+  const { id } = req.params;
+  const data = req.body;
+  const image = req.file; // anggap upload pakai multer
+
+  let oldData = null;
+  let newData = null;
+  let oldFilePath = null;
+  let newFilePath = null;
+
+  try {
+    // Ambil data lama
+    oldData = await ProductModel.getProductById(id);
+    oldFilePath = path.resolve(
+      __dirname,
+      "../../../uploads/images",
+      oldData.fileName
+    );
+
+    // Simpan info file baru
+    newFilePath = path.resolve(
+      __dirname,
+      "../../../uploads/images",
+      image.filename
+    );
+
+    newData = {
+      categoryId: data.categoryId,
+      productName: data.productName,
+      description: data.description,
+      imageUrl: image.path,
+      fileName: image.filename,
+      price: data.price,
+    };
+
+    // Update ke DB
+    await ProductModel.updateProduct(id, newData);
+
+    // Kalau sukses DB update, baru hapus file lama
+    fs.unlink(oldFilePath, (err) => {
+      if (err) console.warn("⚠️ gagal hapus file lama:", err.message);
+    });
+
+    socket.emit("product:updated", "Successfully!");
+    return api.success(res, "Product updated successfully");
+  } catch (error) {
+    console.error("❌ Error in updateProduct:", error);
+
+    // Rollback → hapus file baru kalau ada
+    if (newFilePath && fs.existsSync(newFilePath)) {
+      fs.unlinkSync(newFilePath);
+      console.log("Rollback: file baru dihapus");
+    }
+
+    return api.error(res, "Error updating product", 500);
+  }
+};
 
 // ✅ Delete product
 const deleteProduct = async (req, res) => {
+  const { id } = req.params;
+  let oldData = null;
+  let oldFilePath = null;
+
   try {
-    const { id } = req.params;
+    // Ambil data lama
+    oldData = await ProductModel.getProductById(id);
+    if (!oldData) {
+      return api.error(res, "Product not found", 404);
+    }
+
+    oldFilePath = path.resolve(
+      __dirname,
+      "../../../uploads/images",
+      oldData.fileName
+    );
+
+    // Hapus dari DB
     await ProductModel.deleteProduct(id);
 
-    // 🔔 Emit event
+    // Kalau sukses DB delete → hapus file fisik
+    if (oldFilePath && fs.existsSync(oldFilePath)) {
+      fs.unlink(oldFilePath, (err) => {
+        if (err) console.warn("⚠️ Gagal hapus file:", err.message);
+        else console.log("🗑️ File image deleted:", oldFilePath);
+      });
+    }
+
+    // Emit event
     socket.emit("product:deleted", { id });
 
     return api.success(res, "Product deleted successfully");
   } catch (error) {
     console.error("❌ Error in deleteProduct:", error);
+
+    // Rollback disini sebenernya DB delete udah gagal,
+    // jadi file aman (belum sempet dihapus).
+    // Kalau mau lebih advanced, bisa pakai transaction DB.
+
     return api.error(res, "Error deleting product", 500);
   }
 };
@@ -119,6 +201,7 @@ module.exports = {
   getProductById,
   createProduct,
   updateProduct,
+  updateProductImg,
   deleteProduct,
   getFile,
 };
