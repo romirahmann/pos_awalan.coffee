@@ -17,6 +17,7 @@ import { useAlert } from "../../../store/AlertContext";
 import api from "../../../services/axios.service";
 import moment from "moment";
 import { baseApi, baseUrl } from "../../../services/api.service";
+import { Cart } from "../../../components/main/orders/Carts";
 
 export function DetailOrder() {
   const { showAlert } = useAlert();
@@ -27,16 +28,6 @@ export function DetailOrder() {
   const [products, setProduct] = useState([]);
   const [orderDetail, setOrderDetail] = useState({});
   const [cart, setCart] = useState([]);
-
-  // Dummy data produk
-  // const products = [
-  //   { id: 1, name: "Americano", price: 25000, image: "☕" },
-  //   { id: 2, name: "Latte", price: 30000, image: "🥛" },
-  //   { id: 3, name: "Cappuccino", price: 28000, image: "🍶" },
-  //   { id: 4, name: "Espresso", price: 20000, image: "⚡" },
-  //   { id: 5, name: "Mocha", price: 32000, image: "🍫" },
-  //   { id: 6, name: "Matcha Latte", price: 35000, image: "🍵" },
-  // ];
 
   // ✅ Fetch order detail saat orderId berubah
   useEffect(() => {
@@ -64,7 +55,7 @@ export function DetailOrder() {
   const fetchProducts = async () => {
     try {
       let res = await api.get(`/master/products`);
-      console.log(res.data.data);
+      // console.log(res.data.data);
       setProduct(res.data.data);
     } catch (error) {
       console.error("❌ Fetch order failed:", error);
@@ -75,10 +66,12 @@ export function DetailOrder() {
   // Cart Functions
   const addToCart = (product) => {
     setCart((prev) => {
-      const exists = prev.find((item) => item.id === product.id);
+      const exists = prev.find((item) => item.productId === product.productId);
       if (exists) {
         return prev.map((item) =>
-          item.id === product.id ? { ...item, qty: item.qty + 1 } : item
+          item.productId === product.productId
+            ? { ...item, qty: item.qty + 1 }
+            : item
         );
       }
       return [...prev, { ...product, qty: 1 }];
@@ -86,13 +79,15 @@ export function DetailOrder() {
   };
 
   const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
+    setCart((prev) => prev.filter((item) => item.productId !== id));
   };
 
   const decreaseQty = (id) => {
     setCart((prev) =>
       prev.map((item) =>
-        item.id === id && item.qty > 1 ? { ...item, qty: item.qty - 1 } : item
+        item.productId === id && item.qty > 1
+          ? { ...item, qty: item.qty - 1 }
+          : item
       )
     );
   };
@@ -100,13 +95,15 @@ export function DetailOrder() {
   const increaseQty = (id) => {
     setCart((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, qty: item.qty + 1 } : item
+        item.productId === id ? { ...item, qty: item.qty + 1 } : item
       )
     );
   };
 
   const total = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
-
+  const handleCO = () => {
+    console.log(cart);
+  };
   return (
     <div className="w-full p-6 space-y-8 bg-gray-50 min-h-screen">
       {/* HEADER WITH BACK BUTTON */}
@@ -176,7 +173,7 @@ export function DetailOrder() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
               {products.map((p) => (
                 <div
-                  key={p.id}
+                  key={p.productId}
                   className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 p-6 flex flex-col items-center text-center cursor-pointer"
                   onClick={() => addToCart(p)}
                 >
@@ -188,7 +185,7 @@ export function DetailOrder() {
                     />
                   </div>
                   <h3 className="font-semibold text-lg text-gray-800">
-                    {p.name}
+                    {p.productName}
                   </h3>
                   <p className="text-gray-500 text-sm mb-4">
                     Rp {p.price.toLocaleString("id-ID")}
@@ -204,72 +201,7 @@ export function DetailOrder() {
 
         {/* RIGHT: CART */}
         <div className="lg:col-span-1 bg-white rounded-xl shadow-lg p-6 flex flex-col h-full">
-          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-gray-900">
-            <FaShoppingCart /> Cart
-          </h2>
-
-          <div className="flex-1 overflow-y-auto space-y-4 pr-2">
-            {cart.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-400 text-center">
-                <FaShoppingCart size={40} className="mb-4" />
-                <p>No items in the cart yet.</p>
-              </div>
-            ) : (
-              cart.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center gap-4 py-3 border-b border-gray-100"
-                >
-                  <div className="w-12 h-12 flex items-center justify-center bg-gray-100 rounded-lg text-xl">
-                    {item.image}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-800">{item.name}</p>
-                    <p className="text-gray-500 text-sm">
-                      Rp {(item.price * item.qty).toLocaleString("id-ID")}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <button
-                      onClick={() => decreaseQty(item.id)}
-                      className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"
-                    >
-                      <FaMinus size={12} />
-                    </button>
-                    <span className="min-w-[20px] text-center font-medium">
-                      {item.qty}
-                    </span>
-                    <button
-                      onClick={() => increaseQty(item.id)}
-                      className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"
-                    >
-                      <FaPlus size={12} />
-                    </button>
-                    <button
-                      onClick={() => removeFromCart(item.id)}
-                      className="p-2 text-red-500 hover:text-red-700 transition"
-                    >
-                      <FaTrashAlt size={12} />
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          {/* FOOTER & CHECKOUT */}
-          <div className="mt-6 pt-6 border-t border-gray-100 space-y-4">
-            <div className="flex justify-between font-bold text-xl text-gray-900">
-              <span>Total</span>
-              <span>Rp {total.toLocaleString("id-ID")}</span>
-            </div>
-            <button
-              disabled={cart.length === 0}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
-            >
-              <FaCreditCard /> Checkout
-            </button>
-          </div>
+          <Cart />
         </div>
       </div>
     </div>
