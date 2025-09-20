@@ -21,10 +21,6 @@ export function DetailProduct({ selectedData }) {
         {/* Info Grid */}
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-gray-50 p-3 rounded-lg shadow-sm">
-            <p className="text-xs text-gray-500">Product ID</p>
-            <p className="font-medium">{selectedData.productId}</p>
-          </div>
-          <div className="bg-gray-50 p-3 rounded-lg shadow-sm">
             <p className="text-xs text-gray-500">Category</p>
             <p className="font-medium">{selectedData.categoryName}</p>
           </div>
@@ -36,6 +32,15 @@ export function DetailProduct({ selectedData }) {
               }`}
             >
               {selectedData.isAvailable ? "Yes" : "No"}
+            </p>
+          </div>
+          <div className="bg-gray-50 p-3 rounded-lg shadow-sm">
+            <p className="text-xs text-gray-500">Cost Price</p>
+            <p className="font-medium text-red-500">
+              RP{" "}
+              {new Intl.NumberFormat("id-ID").format(
+                selectedData.costPrice ?? 0
+              )}
             </p>
           </div>
           <div className="bg-gray-50 p-3 rounded-lg shadow-sm">

@@ -42,6 +42,7 @@ const createProduct = async (req, res) => {
       imageUrl: image.path,
       fileName: image.filename,
       price: data.price,
+      costPrice: data.costPrice,
     };
     const productId = await ProductModel.insertProduct(metaData);
 

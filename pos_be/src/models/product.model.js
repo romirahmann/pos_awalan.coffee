@@ -2,22 +2,25 @@ const db = require("../database/db.config");
 
 // ✅ Get all products
 const getAllProducts = async () =>
-  await db("products")
+  await db("products as p")
     .select(
       "p.productId",
       "p.categoryId",
+      "p.subCategoryId",
       "p.productName",
       "p.description",
       "p.imageUrl",
       "p.isAvailable",
       "p.price",
+      "p.costPrice",
       "p.createdAt",
       "p.updatedAt",
       "p.fileName",
-      "c.categoryName"
+      "c.categoryName",
+      "sc.subCategoryName"
     )
-    .from("products as p", "p.categoryId", "c.categoryId")
-    .join("categories as c", "c.categoryId", "p.categoryId");
+    .join("categories as c", "c.categoryId", "p.categoryId")
+    .leftJoin("sub_categories as sc", "sc.subCategoryId", "p.subCategoryId");
 
 // ✅ Get product by ID
 const getProductById = async (productId) =>
@@ -30,6 +33,7 @@ const getProductById = async (productId) =>
       "p.imageUrl",
       "p.isAvailable",
       "p.price",
+      "p.costPrice",
       "p.createdAt",
       "p.updatedAt",
       "p.fileName",

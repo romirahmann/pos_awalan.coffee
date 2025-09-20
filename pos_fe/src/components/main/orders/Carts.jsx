@@ -1,167 +1,150 @@
+import { FaShoppingCart, FaCreditCard } from "react-icons/fa";
+import CartItem from "./CartItem";
 import { useState } from "react";
-import { baseApi } from "../../../services/api.service";
-import {
-  FaShoppingCart,
-  FaPlus,
-  FaMinus,
-  FaTrashAlt,
-  FaCreditCard,
-  FaUser,
-  FaHashtag,
-  FaClock,
-  FaListUl,
-  FaArrowLeft,
-} from "react-icons/fa";
-/* eslint-disable no-unused-vars */
-export function Cart() {
-  const [cart, setCart] = useState([]);
 
-  // Cart Functions
-  const addToCart = (product) => {
-    setCart((prev) => {
-      const exists = prev.find((item) => item.productId === product.productId);
-      if (exists) {
-        return prev.map((item) =>
-          item.productId === product.productId
-            ? { ...item, qty: item.qty + 1 }
-            : item
-        );
-      }
-      return [...prev, { ...product, qty: 1 }];
-    });
-  };
+export default function Cart({
+  items,
+  total,
+  onInc,
+  onDec,
+  onRemove,
+  onCheckout,
+}) {
+  // State untuk form checkout
+  const [checkoutInfo, setCheckoutInfo] = useState({
+    customerName: "",
+    orderType: "Dine-In",
+    discount: 0,
+    paymentMethod: "",
+  });
 
+  // Handle perubahan input
   const handleChange = (e) => {
     const { name, value } = e.target;
+    setCheckoutInfo((prev) => ({ ...prev, [name]: value }));
   };
 
-  const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((item) => item.productId !== id));
+  // Kirim ke parent
+  const handleSubmit = () => {
+    onCheckout({ ...checkoutInfo, items, total });
   };
 
-  const decreaseQty = (id) => {
-    setCart((prev) =>
-      prev.map((item) =>
-        item.productId === id && item.qty > 1
-          ? { ...item, qty: item.qty - 1 }
-          : item
-      )
-    );
-  };
-
-  const increaseQty = (id) => {
-    setCart((prev) =>
-      prev.map((item) =>
-        item.productId === id ? { ...item, qty: item.qty + 1 } : item
-      )
-    );
-  };
-
-  const total = cart.reduce((acc, item) => acc + item.price * item.qty, 0);
-  const onSubmit = () => {
-    console.log(cart);
-  };
   return (
-    <>
-      <h2 className="text-2xl font-bold mb-6 flex items-center gap-2 text-gray-900">
-        <FaShoppingCart /> Cart
+    <div className="bg-white p-6 rounded-2xl shadow-lg flex flex-col h-full">
+      {/* Header */}
+      <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-gray-900">
+        <FaShoppingCart className="text-blue-600" /> Cart
       </h2>
 
-      <div className="flex-1 overflow-y-auto space-y-4 pr-2">
-        {cart.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-400 text-center">
-            <FaShoppingCart size={40} className="mb-4" />
-            <p>No items in the cart yet.</p>
+      {/* Cart Items */}
+      <div className="flex-1 space-y-4 overflow-y-auto pr-1">
+        {items.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-gray-400 py-10 text-center">
+            <FaShoppingCart size={40} className="mb-3" />
+            <p className="font-medium">Keranjang kosong</p>
+            <p className="text-sm">Silakan pilih menu terlebih dahulu.</p>
           </div>
         ) : (
-          cart.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center gap-4 py-3 border-b border-gray-100"
-            >
-              <div className="md:w-12 md:h-12 flex items-center justify-center bg-gray-100 rounded-lg text-xl">
-                <img
-                  src={`${baseApi}/master/get-image/${item.fileName}`}
-                  alt="product"
-                  className="w-12 h-12 rounded-lg object-cover"
-                />
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-gray-800">
-                  {item.productName}
-                </p>
-                <p className="text-gray-500 text-sm">
-                  Rp {(item.price * item.qty).toLocaleString("id-ID")}
-                </p>
-              </div>
-              <div className="flex items-center gap-2 text-gray-600">
-                <button
-                  onClick={() => decreaseQty(item.productId)}
-                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"
-                >
-                  <FaMinus size={12} />
-                </button>
-                <span className="min-w-[20px] text-center font-medium">
-                  {item.qty}
-                </span>
-                <button
-                  onClick={() => increaseQty(item.productId)}
-                  className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"
-                >
-                  <FaPlus size={12} />
-                </button>
-                <button
-                  onClick={() => removeFromCart(item.productId)}
-                  className="p-2 text-red-500 hover:text-red-700 transition"
-                >
-                  <FaTrashAlt size={12} />
-                </button>
-              </div>
-            </div>
+          items.map((i) => (
+            <CartItem
+              key={i.productId}
+              item={i}
+              onIncrease={() => onInc(i.productId)}
+              onDecrease={() => onDec(i.productId)}
+              onRemove={() => onRemove(i.productId)}
+            />
           ))
         )}
       </div>
 
-      {/* FOOTER & CHECKOUT */}
-      <div className="mt-6 pt-6 border-t border-gray-100 space-y-4">
-        <div className="flex justify-between font-bold text-xl text-gray-900">
+      {/* Form & Checkout */}
+      <div className="pt-6 mt-6 border-t border-gray-200 space-y-4">
+        {/* Input Customer */}
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-gray-700 mb-1">
+            Nama Customer
+          </label>
+          <input
+            type="text"
+            name="customerName"
+            value={checkoutInfo.customerName}
+            onChange={handleChange}
+            placeholder="Masukkan nama customer"
+            className="p-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+          />
+        </div>
+
+        {/* Order Type */}
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-gray-700 mb-1">
+            Tipe Order
+          </label>
+          <select
+            name="orderType"
+            value={checkoutInfo.orderType}
+            onChange={handleChange}
+            className="p-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+          >
+            <option value="Dine-In">Dine-In</option>
+            <option value="Takeaway">Takeaway</option>
+          </select>
+        </div>
+
+        {/* Discount */}
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-gray-700 mb-1">
+            Diskon (%)
+          </label>
+          <input
+            type="number"
+            name="discount"
+            value={checkoutInfo.discount}
+            onChange={handleChange}
+            min="0"
+            max="100"
+            className="p-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+          />
+        </div>
+
+        {/* Payment Method */}
+        <div className="flex flex-col">
+          <label className="text-sm font-semibold text-gray-700 mb-1">
+            Metode Pembayaran
+          </label>
+          <select
+            name="paymentMethod"
+            value={checkoutInfo.paymentMethod}
+            onChange={handleChange}
+            className="p-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm"
+          >
+            <option value="">-- Pilih --</option>
+            <option value="Cash">Cash</option>
+            <option value="QRIS">QRIS</option>
+            <option value="Debit">Debit</option>
+            <option value="Credit Card">Credit Card</option>
+          </select>
+        </div>
+
+        {/* Total */}
+        <div className="flex justify-between items-center font-bold text-lg text-gray-900 pt-4 border-t border-gray-100">
           <span>Total</span>
-          <span>Rp {total.toLocaleString("id-ID")}</span>
+          <span>
+            Rp{" "}
+            {(total - (total * checkoutInfo.discount) / 100).toLocaleString(
+              "id-ID"
+            )}
+          </span>
         </div>
-        <div className="inputOrder flex flex-col gap-2 mt-3">
-          <div className="grid grid-cols-4 items-center font-bold  text-gray-900">
-            <p className="text-sm col-span-2">Type Order :</p>
-            <select
-              name="orderType"
-              id="orderType"
-              className="border border-gray-400 px-3 py-1 rounded-xl"
-            >
-              <option value="dine-in">Dine-In</option>
-              <option value="takeaway">Takeaway</option>
-              <option value="delivery">Delivery</option>
-            </select>
-          </div>
-          <div className="grid grid-cols-4 items-center font-bold  text-gray-900">
-            <p className="text-sm col-span-2">Customer Name :</p>
-            <input
-              type="text"
-              name="customer"
-              placeholder="Customer Name..."
-              onChange={handleChange}
-              className="mt-1 w-full border-b border-gray-500  
-                       focus:border-slate-blue focus:ring focus:ring-slate-blue/50 
-                       p-2.5 text-sm col-span-2"
-            />
-          </div>
-        </div>
+
+        {/* Checkout Button */}
         <button
-          disabled={cart.length === 0}
-          onClick={() => onSubmit()}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
+          disabled={items.length === 0 || !checkoutInfo.paymentMethod}
+          onClick={handleSubmit}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-white bg-green-600 hover:bg-green-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           <FaCreditCard /> Checkout
         </button>
       </div>
-    </>
+    </div>
   );
 }

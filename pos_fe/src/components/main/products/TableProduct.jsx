@@ -64,6 +64,11 @@ export function TableProduct({ data = [], filter = {}, categories }) {
       render: (val) => `RP ${new Intl.NumberFormat("id-ID").format(val ?? 0)}`,
     },
     {
+      header: "Cost Price",
+      key: "costPrice",
+      render: (val) => `RP ${new Intl.NumberFormat("id-ID").format(val ?? 0)}`,
+    },
+    {
       header: "Created At",
       key: "createdAt",
       render: (val) => moment(val).format("DD-MM-YYYY HH:mm"),

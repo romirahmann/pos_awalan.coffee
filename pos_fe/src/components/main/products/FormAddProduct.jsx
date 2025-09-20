@@ -6,8 +6,9 @@ export function FormAddProduct({ onSubmit, categories = [] }) {
     categoryId: "",
     productName: "",
     description: "",
-    price: "",
+    price: 0,
     image: null,
+    costPrice: 0,
   });
 
   const handleChange = (e) => {
@@ -97,6 +98,22 @@ export function FormAddProduct({ onSubmit, categories = [] }) {
         />
       </div>
 
+      {/* Price */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700">
+          Cost Price
+        </label>
+        <input
+          type="number"
+          name="costPrice"
+          value={formData.costPrice}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm 
+                     focus:border-slate-blue focus:ring focus:ring-slate-blue/50 
+                     p-2.5 text-sm"
+          required
+        />
+      </div>
       {/* Price */}
       <div>
         <label className="block text-sm font-medium text-gray-700">Price</label>

@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable no-unused-vars */
 /* Sidebar.jsx */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   FaHome,
   FaCashRegister,
@@ -9,32 +9,71 @@ import {
   FaCog,
   FaAngleDoubleLeft,
   FaAngleDoubleRight,
-  FaUser,
   FaUserShield,
-  FaProductHunt,
 } from "react-icons/fa";
 import { PiUserGearFill } from "react-icons/pi";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Tooltip } from "react-tooltip";
 import { motion, AnimatePresence } from "framer-motion";
 import { MdFastfood } from "react-icons/md";
+import { useAuth } from "../store/useAuth";
 
+// Menu definition with role & position rules
 export const menuItems = [
-  { name: "Dashboard", icon: <FaHome />, path: "/" },
-  { name: "Orders", icon: <FaCashRegister />, path: "/orders" },
-  { name: "Products", icon: <MdFastfood />, path: "/products" },
-  { name: "Customers", icon: <FaUsers />, path: "/customers" },
+  {
+    name: "Dashboard",
+    icon: <FaHome />,
+    path: "/",
+    allowedRoles: ["Admin", "Super Admin", "User"],
+    allowedPositions: [
+      "Kasir",
+      "Barista",
+      "Admin",
+      "Owner",
+      "Citchen",
+      "Investor",
+    ],
+  },
+  {
+    name: "Orders",
+    icon: <FaCashRegister />,
+    path: "/orders",
+    allowedRoles: ["Admin", "Super Admin", "User"],
+    allowedPositions: ["Kasir", "Barista", "Admin", "Owner", "Citchen"],
+  },
+  {
+    name: "Products",
+    icon: <MdFastfood />,
+    path: "/products",
+    allowedRoles: ["Admin", "Super Admin"],
+    allowedPositions: ["Kasir", "Barista", "Admin", "Owner", "Citchen"],
+  },
   {
     name: "Settings",
     icon: <FaCog />,
+    allowedRoles: ["Super Admin", "Admin"],
+    allowedPositions: ["Owner", "Admin"],
     children: [
-      // { name: "Profile", icon: <FaUser />, path: "/settings/profile" },
-      { name: "Manage Users", icon: <FaUsers />, path: "/settings/users" },
-      { name: "Manage Roles", icon: <FaUserShield />, path: "/settings/roles" },
+      {
+        name: "Manage Users",
+        icon: <FaUsers />,
+        path: "/settings/users",
+        allowedRoles: ["Super Admin", "Admin"],
+        allowedPositions: ["Owner", "Admin"],
+      },
+      {
+        name: "Manage Roles",
+        icon: <FaUserShield />,
+        path: "/settings/roles",
+        allowedRoles: ["Super Admin", "Admin"],
+        allowedPositions: ["Owner", "Admin"],
+      },
       {
         name: "Manage Positions",
         icon: <PiUserGearFill />,
         path: "/settings/positions",
+        allowedRoles: ["Super Admin", "Admin"],
+        allowedPositions: ["Owner", "Admin"],
       },
     ],
   },
@@ -48,10 +87,34 @@ export function Sidebar({
   const [collapsed, setCollapsed] = useState(initialCollapsed);
   const [openMenu, setOpenMenu] = useState(null);
   const { location } = useRouterState();
+  const { user } = useAuth(); // 👉 contoh { id, name, role, position }
 
+  useEffect(() => {
+    console.log(user);
+  }, []);
   const toggleSubmenu = (menuName) => {
     setOpenMenu(openMenu === menuName ? null : menuName);
   };
+
+  // Filtering menu berdasarkan role & position user
+  const filterMenu = (items) => {
+    return items
+      .filter((item) => {
+        const roleAllowed =
+          !item.allowedRoles || item.allowedRoles.includes(user?.roleName);
+        const positionAllowed =
+          !item.allowedPositions ||
+          item.allowedPositions.includes(user?.positionName);
+
+        return roleAllowed && positionAllowed;
+      })
+      .map((item) => ({
+        ...item,
+        children: item.children ? filterMenu(item.children) : null,
+      }));
+  };
+
+  const filteredMenu = filterMenu(menuItems);
 
   const sidebarContent = (
     <div
@@ -89,13 +152,13 @@ export function Sidebar({
 
       {/* Menu */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden mt-4">
-        {menuItems.map((item) => {
+        {filteredMenu.map((item) => {
           const isActive =
             item.path && item.path !== "/"
               ? location.pathname.startsWith(item.path)
               : location.pathname === "/";
 
-          if (item.children) {
+          if (item.children && item.children.length > 0) {
             const isParentActive = item.children.some((c) =>
               location.pathname.startsWith(c.path)
             );

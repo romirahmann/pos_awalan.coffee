@@ -89,12 +89,16 @@ export function OrderPage() {
           >
             <FaFilter /> Filters
           </button>
-          <button
-            onClick={() => setOpenAddModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition bg-blue-900 hover:bg-blue-700"
-          >
-            <FaPlus /> New Order
-          </button>
+          {user.positionName !== "Barista" ||
+          user.positionName !== "Citchen" ||
+          user.positionName ? (
+            <button
+              onClick={() => setOpenAddModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-opacity-90 transition bg-blue-900 hover:bg-blue-700"
+            >
+              <FaPlus /> New Order
+            </button>
+          ) : null}
         </div>
       </div>
 
