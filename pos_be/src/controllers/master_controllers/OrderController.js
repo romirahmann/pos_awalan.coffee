@@ -82,10 +82,52 @@ const deleteOrder = async (req, res) => {
   }
 };
 
+// ✅ Create Detail Order
+const checkout = async (req, res) => {
+  try {
+    let data = req.body;
+    let orderId = data.orderId;
+    let dataOrder = {
+      customerName: data.customerName,
+      orderType: data.orderType,
+      status: "paid",
+      totalAmount: data.total,
+      discount: (data.total * parseInt(data.discount)) / 100,
+      finalAmount: data.total - (data.total * parseInt(data.discount)) / 100,
+    };
+    let dataSubOrder = data.items.map((item) => ({
+      orderId: orderId,
+      productId: item.productId,
+      quantity: item.qty,
+      subTotal: item.price * item.qty,
+    }));
+    await OrderModel.checkout(dataSubOrder, dataOrder, orderId);
+    // 🔔 Emit ke semua client
+    socket.emit("checkout:created", { id });
+    return api.success(res, { dataOrder, dataSubOrder });
+  } catch (error) {
+    console.log(error);
+    return api.error(res, "Internal Server Error", 500);
+  }
+};
+
+// ✅ Get all item
+const getAllItemById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    let data = await OrderModel.getItemById(id);
+    return api.success(res, data);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   getOrders,
   getOrderById,
   createOrder,
   updateOrder,
   deleteOrder,
+  checkout,
+  getAllItemById,
 };

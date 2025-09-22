@@ -89,9 +89,6 @@ export function Sidebar({
   const { location } = useRouterState();
   const { user } = useAuth(); // 👉 contoh { id, name, role, position }
 
-  useEffect(() => {
-    console.log(user);
-  }, []);
   const toggleSubmenu = (menuName) => {
     setOpenMenu(openMenu === menuName ? null : menuName);
   };

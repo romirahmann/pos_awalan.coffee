@@ -33,8 +33,10 @@ router.delete("/position/:id", PositionController.deletePosition);
 router.get("/orders", OrderController.getOrders);
 router.get("/order/:id", OrderController.getOrderById);
 router.post("/order", OrderController.createOrder);
+router.post("/checkout", OrderController.checkout);
 router.put("/order/:id", OrderController.updateOrder);
 router.delete("/order/:id", OrderController.deleteOrder);
+router.get("/order-detail/:id", OrderController.getAllItemById);
 
 // PRODUCTS
 router.get("/products", ProductController.getProducts);

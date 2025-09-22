@@ -28,8 +28,11 @@ CREATE TABLE `categories` (
   `description` text,
   `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updateAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `subCategoryId` int DEFAULT NULL,
   PRIMARY KEY (`categoryId`),
-  UNIQUE KEY `categoryName` (`categoryName`)
+  UNIQUE KEY `categoryName` (`categoryName`),
+  KEY `categories_sub_categories_FK` (`subCategoryId`),
+  CONSTRAINT `categories_sub_categories_FK` FOREIGN KEY (`subCategoryId`) REFERENCES `sub_categories` (`subCategoryId`) ON DELETE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -39,7 +42,7 @@ CREATE TABLE `categories` (
 
 LOCK TABLES `categories` WRITE;
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
-INSERT INTO `categories` VALUES (1,'Drink','Minuman-minuman awalan coffee','2025-09-15 04:26:44','2025-09-15 04:27:41'),(2,'Food','Makanan-makanan awalan coffee','2025-09-15 04:26:44','2025-09-15 04:26:44');
+INSERT INTO `categories` VALUES (1,'Drink','Minuman-minuman awalan coffee','2025-09-15 04:26:44','2025-09-15 04:27:41',NULL),(2,'Food','Makanan-makanan awalan coffee','2025-09-15 04:26:44','2025-09-15 04:26:44',NULL);
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -64,7 +67,7 @@ CREATE TABLE `counters` (
 
 LOCK TABLES `counters` WRITE;
 /*!40000 ALTER TABLE `counters` DISABLE KEYS */;
-INSERT INTO `counters` VALUES (1,'2025-09-13',1),(2,'2025-09-16',1);
+INSERT INTO `counters` VALUES (1,'2025-09-20',2),(2,'2025-09-22',1);
 /*!40000 ALTER TABLE `counters` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -80,19 +83,17 @@ CREATE TABLE `order_items` (
   `orderId` int NOT NULL,
   `productId` int NOT NULL,
   `quantity` int NOT NULL DEFAULT '1',
-  `price` decimal(12,2) NOT NULL,
-  `subtotal` decimal(12,2) NOT NULL,
+  `subtotal` int NOT NULL,
   `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `orderCode` varchar(255) NOT NULL,
+  `status` enum('pending','making','ready','cancelled') NOT NULL DEFAULT 'pending',
   PRIMARY KEY (`orderItemId`),
-  UNIQUE KEY `order_items_unique` (`orderCode`),
-  KEY `fk_order_items_order` (`orderId`),
   KEY `fk_order_items_product` (`productId`),
+  KEY `order_items_orders_FK` (`orderId`),
   CONSTRAINT `fk_order_items_order` FOREIGN KEY (`orderId`) REFERENCES `orders` (`orderId`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_order_items_product` FOREIGN KEY (`productId`) REFERENCES `products` (`productId`) ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT `order_items_orders_FK` FOREIGN KEY (`orderCode`) REFERENCES `orders` (`orderCode`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `order_items_orders_FK` FOREIGN KEY (`orderId`) REFERENCES `orders` (`orderId`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,6 +102,7 @@ CREATE TABLE `order_items` (
 
 LOCK TABLES `order_items` WRITE;
 /*!40000 ALTER TABLE `order_items` DISABLE KEYS */;
+INSERT INTO `order_items` VALUES (3,3,2,1,15000,'2025-09-22 04:45:09','2025-09-22 04:45:09','pending'),(4,3,1,2,30000,'2025-09-22 04:45:09','2025-09-22 04:45:09','pending');
 /*!40000 ALTER TABLE `order_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -117,9 +119,9 @@ CREATE TABLE `orders` (
   `customerName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `orderType` enum('dine-in','takeaway','delivery') NOT NULL DEFAULT 'dine-in',
   `status` enum('pending','paid','cancelled') NOT NULL DEFAULT 'pending',
-  `totalAmount` decimal(12,2) NOT NULL DEFAULT '0.00',
-  `discount` decimal(12,2) NOT NULL DEFAULT '0.00',
-  `finalAmount` decimal(12,2) NOT NULL DEFAULT '0.00',
+  `totalAmount` int NOT NULL DEFAULT '0',
+  `discount` int NOT NULL DEFAULT '0',
+  `finalAmount` int NOT NULL DEFAULT '0',
   `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `notes` varchar(255) DEFAULT NULL,
@@ -128,7 +130,7 @@ CREATE TABLE `orders` (
   UNIQUE KEY `orders_unique` (`orderCode`),
   KEY `fk_orders_user` (`userId`),
   CONSTRAINT `fk_orders_user` FOREIGN KEY (`userId`) REFERENCES `users` (`userId`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -137,7 +139,7 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (2,1,'Customer','dine-in','pending',0.00,0.00,0.00,'2025-09-16 06:14:02','2025-09-16 06:14:02','','AWLN-20250916-001');
+INSERT INTO `orders` VALUES (3,1,'Romi','dine-in','paid',45000,900,44100,'2025-09-22 03:10:16','2025-09-22 04:45:09','','AWLN-20250922-001');
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -183,7 +185,7 @@ CREATE TABLE `positions` (
   `description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`positionId`),
   UNIQUE KEY `positionName` (`positionName`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -192,7 +194,7 @@ CREATE TABLE `positions` (
 
 LOCK TABLES `positions` WRITE;
 /*!40000 ALTER TABLE `positions` DISABLE KEYS */;
-INSERT INTO `positions` VALUES (1,'Kasir','Bertugas melayani pelanggan dan memproses transaksi'),(2,'Barista','Bertugas menyiapkan dan membuat minuman'),(3,'Admin','Bertugas mengelola data dan laporan'),(4,'Owner','Pemilik kedai, akses penuh ke semua data'),(5,'Citchen','Bertugas di dapur menyiapkan makanan ringan atau makanan berat');
+INSERT INTO `positions` VALUES (1,'Kasir','Bertugas melayani pelanggan dan memproses transaksi'),(2,'Barista','Bertugas menyiapkan dan membuat minuman'),(3,'Admin','Bertugas mengelola data dan laporan'),(4,'Owner','Pemilik kedai, akses penuh ke semua data'),(5,'Citchen','Bertugas di dapur menyiapkan makanan ringan atau makanan berat'),(7,'Investor','Suntikan dana');
 /*!40000 ALTER TABLE `positions` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -208,16 +210,20 @@ CREATE TABLE `products` (
   `categoryId` int NOT NULL,
   `productName` varchar(150) NOT NULL,
   `description` text,
-  `imageUrl` varchar(255) DEFAULT NULL,
+  `imageUrl` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `isAvailable` tinyint(1) NOT NULL DEFAULT '1',
   `price` int NOT NULL,
   `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `fileName` varchar(255) DEFAULT NULL,
+  `fileName` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `costPrice` int NOT NULL,
+  `subCategoryId` int DEFAULT NULL,
   PRIMARY KEY (`productId`),
   KEY `fk_products_category` (`categoryId`),
-  CONSTRAINT `fk_products_category` FOREIGN KEY (`categoryId`) REFERENCES `categories` (`categoryId`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `products_sub_categories_FK` (`subCategoryId`),
+  CONSTRAINT `fk_products_category` FOREIGN KEY (`categoryId`) REFERENCES `categories` (`categoryId`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `products_sub_categories_FK` FOREIGN KEY (`subCategoryId`) REFERENCES `sub_categories` (`subCategoryId`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -226,7 +232,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (6,1,'Kopi Susu Gula Aren','Test Add','D:\\ROMI\\PROJECT\\AWALAN\\pos_be\\uploads\\images\\55e38f48fadab9cf171de406be2e1321.jpeg',1,15000,'2025-09-16 02:46:07','2025-09-16 02:46:07','55e38f48fadab9cf171de406be2e1321.jpeg'),(7,1,'Matcha Latte','Matcha Culinery','D:\\ROMI\\PROJECT\\AWALAN\\pos_be\\uploads\\images\\b0c6314b26e53e6d5a0ca4d2de784fe1.jpeg',1,15000,'2025-09-16 03:57:20','2025-09-16 03:57:20','b0c6314b26e53e6d5a0ca4d2de784fe1.jpeg');
+INSERT INTO `products` VALUES (1,1,'Aren Latte','Kopi Susu Gula Aren Creamy','D:\\ROMI\\PROJECT\\AWALAN\\pos_be\\uploads\\images\\43e46711849027a19c5b22dd7781f355.png',1,15000,'2025-09-20 02:52:03','2025-09-22 03:26:53','43e46711849027a19c5b22dd7781f355.png',5500,1),(2,1,'Matcha Latte','Matcha Creamy Latte','D:\\ROMI\\PROJECT\\AWALAN\\pos_be\\uploads\\images\\4149a80bfc5668fb786b9a44cdfc7c25.jpeg',1,15000,'2025-09-20 03:32:34','2025-09-22 03:26:53','4149a80bfc5668fb786b9a44cdfc7c25.jpeg',6000,2);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -257,6 +263,33 @@ INSERT INTO `roles` VALUES (1,'Super Admin','Full access including system-level 
 UNLOCK TABLES;
 
 --
+-- Table structure for table `sub_categories`
+--
+
+DROP TABLE IF EXISTS `sub_categories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `sub_categories` (
+  `subCategoryId` int NOT NULL AUTO_INCREMENT,
+  `subCategoryName` varchar(100) DEFAULT NULL,
+  `categoryId` int DEFAULT NULL,
+  PRIMARY KEY (`subCategoryId`),
+  KEY `sub_categories_categories_FK` (`categoryId`),
+  CONSTRAINT `sub_categories_categories_FK` FOREIGN KEY (`categoryId`) REFERENCES `categories` (`categoryId`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sub_categories`
+--
+
+LOCK TABLES `sub_categories` WRITE;
+/*!40000 ALTER TABLE `sub_categories` DISABLE KEYS */;
+INSERT INTO `sub_categories` VALUES (1,'Coffee',1),(2,'Non Coffee',1);
+/*!40000 ALTER TABLE `sub_categories` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `users`
 --
 
@@ -281,7 +314,7 @@ CREATE TABLE `users` (
   KEY `fk_users_position` (`positionId`),
   CONSTRAINT `fk_users_position` FOREIGN KEY (`positionId`) REFERENCES `positions` (`positionId`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_users_role` FOREIGN KEY (`roleId`) REFERENCES `roles` (`roleId`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -290,7 +323,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'romirahman','Romi Rahman','$argon2id$v=19$m=65536,t=4,p=2$vWyXtHkpY0Ru9cwanRRspQ$8E3rdtp31jo3P/3i6+i36hZKwJgp1znzV6TNgpxWBRo','romirahman03romi@gmail.com',1,'2025-09-08 08:17:26','2025-09-11 06:49:11',1,4),(4,'icha','Risya Ristia Wardah','$argon2id$v=19$m=65536,t=4,p=2$0tMGoCvY0qc02oueLGf+Dg$S3tyM7aWN+ABASSZAhic3e+xiwYivFZA2xW5l1F4sh0','risya@gmail.com',1,'2025-09-11 08:04:28','2025-09-11 08:04:35',2,2);
+INSERT INTO `users` VALUES (1,'romirahman','Romi Rahman','$argon2id$v=19$m=65536,t=4,p=2$vWyXtHkpY0Ru9cwanRRspQ$8E3rdtp31jo3P/3i6+i36hZKwJgp1znzV6TNgpxWBRo','romirahman03romi@gmail.com',1,'2025-09-08 08:17:26','2025-09-11 06:49:11',1,4),(4,'icha','Risya Ristia Wardah','$argon2id$v=19$m=65536,t=4,p=2$0tMGoCvY0qc02oueLGf+Dg$S3tyM7aWN+ABASSZAhic3e+xiwYivFZA2xW5l1F4sh0','risya@gmail.com',1,'2025-09-11 08:04:28','2025-09-11 08:04:35',2,2),(5,'otam','OTAM','$argon2id$v=19$m=65536,t=4,p=2$70SDwwvvowy3MmZjg/Y4xw$flRYxkSb1Eq8F9bV78E9myfXNWNYvU60DaR+/lJj0S0','otam@gmail.com',1,'2025-09-20 02:12:25','2025-09-20 02:12:25',3,7);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -307,4 +340,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-16 15:46:08
+-- Dump completed on 2025-09-22 14:41:33

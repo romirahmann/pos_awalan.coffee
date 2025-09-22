@@ -6,7 +6,6 @@ const getAllProducts = async () =>
     .select(
       "p.productId",
       "p.categoryId",
-      "p.subCategoryId",
       "p.productName",
       "p.description",
       "p.imageUrl",
@@ -17,10 +16,11 @@ const getAllProducts = async () =>
       "p.updatedAt",
       "p.fileName",
       "c.categoryName",
+      "c.subCategoryId",
       "sc.subCategoryName"
     )
     .join("categories as c", "c.categoryId", "p.categoryId")
-    .leftJoin("sub_categories as sc", "sc.subCategoryId", "p.subCategoryId");
+    .leftJoin("sub_categories as sc", "sc.subCategoryId", "c.subCategoryId");
 
 // ✅ Get product by ID
 const getProductById = async (productId) =>

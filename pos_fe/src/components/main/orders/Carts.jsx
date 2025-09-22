@@ -1,6 +1,7 @@
 import { FaShoppingCart, FaCreditCard } from "react-icons/fa";
 import CartItem from "./CartItem";
 import { useState } from "react";
+import { useSearch } from "@tanstack/react-router";
 
 export default function Cart({
   items,
@@ -10,8 +11,10 @@ export default function Cart({
   onRemove,
   onCheckout,
 }) {
+  const { orderId } = useSearch({});
   // State untuk form checkout
   const [checkoutInfo, setCheckoutInfo] = useState({
+    orderId,
     customerName: "",
     orderType: "Dine-In",
     discount: 0,

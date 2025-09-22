@@ -37,17 +37,18 @@ export function DetailOrder() {
   const loadData = async (id) => {
     setLoading(true);
     try {
-      const [orderRes, productsRes] = await Promise.all([
+      const [orderRes, productsRes, orderItemsRes] = await Promise.all([
         api.get(`/master/order/${id}`),
         api.get(`/master/products`),
+        api.get(`/master/order-detail/${id}`),
       ]);
 
-      console.log(productsRes.data.data);
+      console.log(orderItemsRes.data.data);
+
       setOrderDetail(orderRes.data.data);
-      setOrderItems(orderRes.data.data.items || []);
+      setOrderItems(orderItemsRes.data.data);
       setProducts(productsRes.data.data);
     } catch (error) {
-      console.error(error);
       showAlert("error", "Gagal memuat data!");
     } finally {
       setLoading(false);
@@ -102,6 +103,18 @@ export function DetailOrder() {
       return false;
     return true;
   });
+
+  const handleCheckout = async (val) => {
+    if (!val) return showAlert("warning", "Items not found!");
+
+    try {
+      await api.post("/master/checkout", val);
+      showAlert("success", "Checkout successfully");
+    } catch (error) {
+      console.log(error);
+      showAlert("error", "Checkout Failure!");
+    }
+  };
 
   if (loading) return <p className="p-6">Loading...</p>;
 
@@ -195,7 +208,7 @@ export function DetailOrder() {
                 onInc={(id) => updateQty(id, "inc")}
                 onDec={(id) => updateQty(id, "dec")}
                 onRemove={removeItem}
-                onCheckout={() => console.log("Checkout:", cart)}
+                onCheckout={handleCheckout}
               />
             </div>
           </div>
