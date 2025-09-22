@@ -66,7 +66,7 @@ export function OrderPage() {
       showAlert("success", "Create Order Successfully!");
       setOpenAddModal(false);
       navigate({
-        to: "/orders/detail", // ✅ Navigasi ke path yang benar
+        to: "/orders/detail",
         search: { orderId: id },
       });
     } catch (error) {

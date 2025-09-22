@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* src/components/TableOrders.jsx */
 import moment from "moment/moment";
 import { Table } from "../../../shared/Table";
@@ -36,7 +37,7 @@ const getTypeColor = (type) => {
   }
 };
 
-export function TableOrders({ data = [], filter = {} }) {
+export function TableOrders({ data = [], filter = {}, onDeleted }) {
   const [openModal, setOpenModal] = useState({ detail: false, deleted: false });
   const [selectedData, setSelectedData] = useState(null);
   const { showAlert } = useAlert();

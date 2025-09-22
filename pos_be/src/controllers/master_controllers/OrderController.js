@@ -103,7 +103,7 @@ const checkout = async (req, res) => {
     }));
     await OrderModel.checkout(dataSubOrder, dataOrder, orderId);
     // 🔔 Emit ke semua client
-    socket.emit("checkout:created", { id });
+    socket.emit("checkout:created", "Checkout Successfully!");
     return api.success(res, { dataOrder, dataSubOrder });
   } catch (error) {
     console.log(error);

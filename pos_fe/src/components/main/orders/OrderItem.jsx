@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useState, useMemo } from "react";
-
-export default function OrderItems({ items = [], total }) {
+import { IoMdAddCircle } from "react-icons/io";
+export default function OrderItems({ items = [], total, orderInfo }) {
   const [filterStatus, setFilterStatus] = useState("All");
   const [filterCategory, setFilterCategory] = useState("All");
 
@@ -36,15 +36,6 @@ export default function OrderItems({ items = [], total }) {
       : "bg-blue-100 text-blue-700 border border-blue-300";
   };
 
-  // Dummy order info
-  const orderInfo = {
-    orderId: "ORD-20250915-001",
-    customerName: "John Doe",
-    orderType: "Dine-In",
-    status: "Paid",
-    createdAt: "2025-09-15 10:00",
-  };
-
   return (
     <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-xl space-y-6">
       {/* Header */}
@@ -57,7 +48,7 @@ export default function OrderItems({ items = [], total }) {
         <div>
           <span className="font-medium text-gray-600">Order ID:</span>{" "}
           <span className="font-semibold text-gray-900">
-            {orderInfo.orderId}
+            {orderInfo.orderCode}
           </span>
         </div>
         <div>
@@ -125,6 +116,12 @@ export default function OrderItems({ items = [], total }) {
             </button>
           ))}
         </div>
+
+        <div className="addItem md:ms-auto md:me-3">
+          <button className="bg-blue-800 text-white px-2 py-1 rounded-md flex gap-2 items-center hover:bg-blue-900 ">
+            <IoMdAddCircle /> Add Item
+          </button>
+        </div>
       </div>
 
       {/* List Items */}
@@ -142,10 +139,10 @@ export default function OrderItems({ items = [], total }) {
                 </span>
                 <span
                   className={`text-xs px-2 py-0.5 rounded-full font-medium ${getCategoryColor(
-                    i.categoryName
+                    i.status
                   )}`}
                 >
-                  {i.categoryName}
+                  {i.status}
                 </span>
               </div>
 
@@ -158,11 +155,11 @@ export default function OrderItems({ items = [], total }) {
                   <span className="text-xs text-gray-400">{i.date}</span>
                 )}
                 <span
-                  className={`text-xs px-2 py-0.5 rounded-full font-medium ${getStatusColor(
-                    i.status
+                  className={`text-xs px-2 py-0.5 rounded-full font-medium ${getCategoryColor(
+                    i.categoryName
                   )}`}
                 >
-                  {i.status}
+                  {i.categoryName}
                 </span>
               </div>
             </div>

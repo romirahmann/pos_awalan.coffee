@@ -18,7 +18,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
+console.log("Io Running", io);
 // 🔹 API routes
 app.use("/api", mainRoute);
 

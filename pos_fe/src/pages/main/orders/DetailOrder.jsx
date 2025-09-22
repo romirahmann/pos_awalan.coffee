@@ -110,6 +110,7 @@ export function DetailOrder() {
     try {
       await api.post("/master/checkout", val);
       showAlert("success", "Checkout successfully");
+      loadData(orderId);
     } catch (error) {
       console.log(error);
       showAlert("error", "Checkout Failure!");
@@ -130,7 +131,7 @@ export function DetailOrder() {
         <h1 className="text-2xl font-bold">Order Detail</h1>
       </div>
       {orderItems.length > 0 ? (
-        <OrderItems items={orderItems} total={total} />
+        <OrderItems items={orderItems} total={total} orderInfo={orderDetail} />
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Kiri → Info + Produk */}
